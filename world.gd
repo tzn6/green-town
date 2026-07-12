@@ -1,11 +1,13 @@
 extends Node2D
 
 # GREEN TOWN — большая интерактивная карта-прототип.
-# Вся графика пока рисуется кодом, поэтому проект не зависит от внешних картинок.
+# Основа земли использует бесшовную рисованную текстуру, остальные элементы
+# пока рисуются кодом поверх неё.
 
 const WORLD_SIZE := Vector2(3600.0, 2200.0)
 const MIN_ZOOM := 0.55
 const MAX_ZOOM := 1.35
+const GRASS_TEXTURE: Texture2D = preload("res://assets/textures/grass_tile.webp")
 
 var world_camera: Camera2D
 var active_touches: Dictionary = {}
@@ -16,6 +18,8 @@ var rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	rng.seed = 4202407
+	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	create_camera()
 	create_world_labels()
 	create_interface()
@@ -99,17 +103,22 @@ func _draw() -> void:
 
 
 func draw_ground() -> void:
-	draw_rect(Rect2(Vector2.ZERO, WORLD_SIZE), Color("#76c957"))
+	draw_texture_rect(
+		GRASS_TEXTURE,
+		Rect2(Vector2.ZERO, WORLD_SIZE),
+		true,
+		Color.WHITE
+	)
 
-	# Небольшие цветовые пятна делают траву менее плоской.
+	# Полупрозрачные пятна ломают повтор рисунка на очень большой карте.
 	for i in range(180):
 		var pos := Vector2(
 			rng.randf_range(80.0, WORLD_SIZE.x - 80.0),
 			rng.randf_range(80.0, WORLD_SIZE.y - 80.0)
 		)
-		var radius := rng.randf_range(20.0, 60.0)
+		var radius := rng.randf_range(35.0, 95.0)
 		var color := Color("#84d565") if i % 2 == 0 else Color("#6abd4e")
-		color.a = 0.22
+		color.a = 0.07
 		draw_circle(pos, radius, color)
 
 
