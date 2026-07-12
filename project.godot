@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="GreenTown"
-run/main_scene="uid://cwmtsn6n6a6gp"
+run/main_scene="res://world.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]
