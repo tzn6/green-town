@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="320" viewBox="0 0 256 320">
+  <defs>
+    <linearGradient id="trunk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a96532"/>
+      <stop offset="0.55" stop-color="#7d431f"/>
+      <stop offset="1" stop-color="#55301d"/>
+    </linearGradient>
+    <radialGradient id="leaf" cx="35%" cy="24%" r="78%">
+      <stop offset="0" stop-color="#57df62"/>
+      <stop offset="0.52" stop-color="#22b94f"/>
+      <stop offset="1" stop-color="#087a39"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="132" cy="290" rx="82" ry="19" fill="#12381f" opacity="0.23"/>
+  <path d="M101 276c13-43 11-74 9-105l-26-36 17-11 20 28 9-59 22 4-8 59 29-32 17 14-41 45c1 35 7 66 20 93z" fill="#4a2919" stroke="#4a2919" stroke-width="11" stroke-linejoin="round"/>
+  <path d="M107 276c15-43 17-78 13-112l-22-32 10-6 21 29 8-55 10 2-7 59 37-31 8 9-44 43c0 33 5 64 17 94z" fill="url(#trunk)"/>
+  <path d="M119 262c8-28 8-55 7-82" fill="none" stroke="#c98446" stroke-width="7" stroke-linecap="round" opacity="0.45"/>
+  <g fill="#075f31" stroke="#075f31" stroke-width="7" stroke-linejoin="round">
+    <circle cx="69" cy="127" r="48"/><circle cx="115" cy="82" r="57"/><circle cx="171" cy="104" r="53"/>
+    <circle cx="196" cy="154" r="44"/><circle cx="143" cy="154" r="61"/><circle cx="82" cy="173" r="50"/>
+  </g>
+  <g fill="url(#leaf)">
+    <circle cx="67" cy="119" r="43"/><circle cx="112" cy="76" r="51"/><circle cx="169" cy="98" r="47"/>
+    <circle cx="192" cy="147" r="39"/><circle cx="141" cy="146" r="55"/><circle cx="81" cy="165" r="45"/>
+  </g>
+  <g fill="#87ed72" opacity="0.72">
+    <ellipse cx="91" cy="67" rx="18" ry="10" transform="rotate(-27 91 67)"/>
+    <ellipse cx="57" cy="111" rx="14" ry="8" transform="rotate(-20 57 111)"/>
+    <ellipse cx="152" cy="77" rx="17" ry="9" transform="rotate(18 152 77)"/>
+    <ellipse cx="119" cy="125" rx="15" ry="8" transform="rotate(-15 119 125)"/>
+  </g>
+  <g fill="#b4f48a" opacity="0.55">
+    <circle cx="82" cy="87" r="5"/><circle cx="130" cy="55" r="6"/><circle cx="183" cy="113" r="5"/><circle cx="54" cy="148" r="4"/>
+  </g>
+</svg>

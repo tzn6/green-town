@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="160" viewBox="0 0 256 160">
+  <ellipse cx="128" cy="143" rx="104" ry="12" fill="#174226" opacity="0.13"/>
+  <g fill="none" stroke="#168844" stroke-width="6" stroke-linecap="round">
+    <path d="M35 141l10-61M72 144l-4-78M111 145l13-67M152 144l-5-91M193 144l15-65M224 145l-4-53"/>
+  </g>
+  <g fill="#35bc55" stroke="#08733a" stroke-width="2">
+    <ellipse cx="40" cy="112" rx="8" ry="17" transform="rotate(-45 40 112)"/><ellipse cx="50" cy="120" rx="8" ry="17" transform="rotate(45 50 120)"/>
+    <ellipse cx="62" cy="102" rx="8" ry="17" transform="rotate(-55 62 102)"/><ellipse cx="76" cy="110" rx="8" ry="17" transform="rotate(52 76 110)"/>
+    <ellipse cx="114" cy="112" rx="8" ry="18" transform="rotate(-42 114 112)"/><ellipse cx="130" cy="118" rx="8" ry="17" transform="rotate(48 130 118)"/>
+    <ellipse cx="140" cy="98" rx="8" ry="17" transform="rotate(-48 140 98)"/><ellipse cx="156" cy="106" rx="8" ry="18" transform="rotate(50 156 106)"/>
+    <ellipse cx="198" cy="113" rx="8" ry="18" transform="rotate(-45 198 113)"/><ellipse cx="214" cy="120" rx="8" ry="18" transform="rotate(48 214 120)"/>
+  </g>
+  <g fill="#fff9ef" stroke="#f2d9dd" stroke-width="2">
+    <circle cx="45" cy="78" r="10"/><circle cx="34" cy="84" r="10"/><circle cx="56" cy="85" r="10"/><circle cx="45" cy="91" r="10"/>
+    <circle cx="147" cy="51" r="11"/><circle cx="135" cy="58" r="11"/><circle cx="159" cy="58" r="11"/><circle cx="147" cy="66" r="11"/>
+    <circle cx="220" cy="91" r="9"/><circle cx="210" cy="97" r="9"/><circle cx="230" cy="97" r="9"/><circle cx="220" cy="103" r="9"/>
+  </g>
+  <g fill="#ff7caf" stroke="#e84d8a" stroke-width="2">
+    <circle cx="68" cy="63" r="10"/><circle cx="58" cy="69" r="10"/><circle cx="78" cy="69" r="10"/><circle cx="68" cy="77" r="10"/>
+    <circle cx="124" cy="76" r="9"/><circle cx="115" cy="82" r="9"/><circle cx="133" cy="82" r="9"/><circle cx="124" cy="89" r="9"/>
+    <circle cx="208" cy="77" r="9"/><circle cx="199" cy="83" r="9"/><circle cx="217" cy="83" r="9"/><circle cx="208" cy="90" r="9"/>
+  </g>
+  <g fill="#ffd34f" stroke="#d99c2e" stroke-width="2">
+    <circle cx="45" cy="85" r="6"/><circle cx="68" cy="70" r="6"/><circle cx="124" cy="83" r="6"/><circle cx="147" cy="59" r="6"/><circle cx="208" cy="84" r="6"/><circle cx="220" cy="97" r="6"/>
+  </g>
+</svg>

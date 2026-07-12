@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="180" viewBox="0 0 256 180">
+  <defs>
+    <radialGradient id="bush" cx="36%" cy="25%" r="78%">
+      <stop offset="0" stop-color="#70e263"/><stop offset="0.55" stop-color="#25b94d"/><stop offset="1" stop-color="#08733a"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="128" cy="151" rx="99" ry="18" fill="#173d24" opacity="0.2"/>
+  <g fill="#08703a" stroke="#08703a" stroke-width="7">
+    <circle cx="58" cy="112" r="38"/><circle cx="95" cy="83" r="48"/><circle cx="139" cy="93" r="54"/><circle cx="188" cy="108" r="43"/><circle cx="117" cy="125" r="45"/>
+  </g>
+  <g fill="url(#bush)">
+    <circle cx="58" cy="105" r="33"/><circle cx="94" cy="76" r="42"/><circle cx="138" cy="86" r="48"/><circle cx="186" cy="101" r="38"/><circle cx="117" cy="118" r="39"/>
+  </g>
+  <g fill="#91ed79" opacity="0.72">
+    <ellipse cx="78" cy="67" rx="14" ry="8" transform="rotate(-20 78 67)"/>
+    <ellipse cx="124" cy="61" rx="15" ry="8" transform="rotate(12 124 61)"/>
+    <ellipse cx="169" cy="85" rx="13" ry="7" transform="rotate(-12 169 85)"/>
+  </g>
+  <g stroke="#fff8e8" stroke-width="4" stroke-linecap="round">
+    <path d="M73 97h18M82 88v18"/><path d="M143 103h18M152 94v18"/><path d="M179 120h16M187 112v16"/>
+  </g>
+  <g fill="#ffd94f" stroke="#e5a934" stroke-width="2">
+    <circle cx="82" cy="97" r="5"/><circle cx="152" cy="103" r="5"/><circle cx="187" cy="120" r="5"/>
+  </g>
+  <g fill="#ff7bb0"><circle cx="110" cy="91" r="5"/><circle cx="203" cy="96" r="4"/><circle cx="57" cy="122" r="4"/></g>
+</svg>
