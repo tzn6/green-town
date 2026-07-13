@@ -4,17 +4,17 @@ extends Node2D
 # Новый набор изометрических моделей, разнообразная трава и земля,
 # более цельная стартовая композиция, красивое меню и сохранённая механика MVP.
 
-const WORLD_SIZE := Vector2(3900.0, 2450.0)
-const MIN_ZOOM := 0.48
-const MAX_ZOOM := 1.36
-const START_ZOOM := 0.84
-const START_CAMERA := Vector2(1680.0, 1090.0)
+const WORLD_SIZE := Vector2(2250.0, 1500.0)
+const MIN_ZOOM := 0.60
+const MAX_ZOOM := 1.28
+const START_ZOOM := 0.70
+const START_CAMERA := Vector2(1125.0, 780.0)
 const SAVE_PATH := "user://green_town_world_v2.json"
 const BARN_CAPACITY := 100
 const BAKERY_PRICE := 120
-const BAKERY_SITE := Vector2(2620.0, 805.0)
-const CHICKEN_SITE := Vector2(2810.0, 1485.0)
-const BAKERY_BUILD_POSITION := Vector2(2620.0, 690.0)
+const BAKERY_SITE := Vector2(1950.0, 465.0)
+const CHICKEN_SITE := Vector2(2025.0, 1225.0)
+const BAKERY_BUILD_POSITION := Vector2(1950.0, 355.0)
 
 const GRASS_TEXTURE: Texture2D = preload("res://assets/textures/grass_tile.webp")
 
@@ -51,30 +51,6 @@ const NAV_BUILD_TEXTURE: Texture2D = preload("res://assets/deluxe/nav_build.png"
 const NAV_BARN_TEXTURE: Texture2D = preload("res://assets/deluxe/nav_barn.png")
 const NAV_ORDERS_TEXTURE: Texture2D = preload("res://assets/deluxe/nav_orders.png")
 const NAV_MAP_TEXTURE: Texture2D = preload("res://assets/deluxe/nav_map.png")
-
-# Большие декоративные куски травы и переходы земли.
-const TERRAIN_GRASS_01: Texture2D = preload("res://assets/deluxe/terrain_r1_c1.png")
-const TERRAIN_GRASS_02: Texture2D = preload("res://assets/deluxe/terrain_r1_c2.png")
-const TERRAIN_GRASS_03: Texture2D = preload("res://assets/deluxe/terrain_r1_c3.png")
-const TERRAIN_GRASS_04: Texture2D = preload("res://assets/deluxe/terrain_r1_c4.png")
-const TERRAIN_CLOVER: Texture2D = preload("res://assets/deluxe/terrain_r1_c5.png")
-const TERRAIN_FLOWERS_01: Texture2D = preload("res://assets/deluxe/terrain_r1_c6.png")
-const TERRAIN_TALL_GRASS: Texture2D = preload("res://assets/deluxe/terrain_r1_c7.png")
-const TERRAIN_MEADOW_01: Texture2D = preload("res://assets/deluxe/terrain_r2_c2.png")
-const TERRAIN_DARK_GRASS: Texture2D = preload("res://assets/deluxe/terrain_r2_c3.png")
-const TERRAIN_MEADOW_02: Texture2D = preload("res://assets/deluxe/terrain_r2_c4.png")
-const TERRAIN_MEADOW_03: Texture2D = preload("res://assets/deluxe/terrain_r2_c5.png")
-const TERRAIN_FLOWERS_02: Texture2D = preload("res://assets/deluxe/terrain_r2_c6.png")
-const TERRAIN_WORN_01: Texture2D = preload("res://assets/deluxe/terrain_r3_c1.png")
-const TERRAIN_WORN_02: Texture2D = preload("res://assets/deluxe/terrain_r3_c2.png")
-const TERRAIN_WORN_03: Texture2D = preload("res://assets/deluxe/terrain_r3_c3.png")
-const TERRAIN_MOSS: Texture2D = preload("res://assets/deluxe/terrain_r3_c5.png")
-const TERRAIN_DIRT_01: Texture2D = preload("res://assets/deluxe/terrain_r4_c3.png")
-const TERRAIN_DIRT_02: Texture2D = preload("res://assets/deluxe/terrain_r4_c4.png")
-const TERRAIN_DIRT_03: Texture2D = preload("res://assets/deluxe/terrain_r4_c5.png")
-const TERRAIN_SHORE_01: Texture2D = preload("res://assets/deluxe/terrain_r5_c1.png")
-const TERRAIN_SHORE_02: Texture2D = preload("res://assets/deluxe/terrain_r5_c4.png")
-const TERRAIN_SHORE_03: Texture2D = preload("res://assets/deluxe/terrain_r5_c5.png")
 
 const CROP_ORDER := ["wheat", "corn", "tomato", "carrot"]
 const STORAGE_ORDER := ["wheat", "corn", "tomato", "carrot", "bread"]
@@ -172,6 +148,7 @@ var current_order: Dictionary = {}
 var coins_label: Label
 var gems_label: Label
 var level_label: Label
+var level_badge_label: Label
 var xp_label: Label
 var xp_bar: ProgressBar
 var task_progress_bar: ProgressBar
@@ -187,12 +164,16 @@ var build_dialog: PanelContainer
 var order_dialog: PanelContainer
 var bakery_dialog: PanelContainer
 var bakery_world_root: Node2D
+var bakery_site_button: Button
+var chicken_site_button: Button
 var bakery_build_button: Button
 var bakery_card_status: Label
 var order_summary_label: Label
 var bakery_summary_label: Label
 var bakery_site_label: Label
 var chicken_site_label: Label
+var bakery_lock_label: Label
+var chicken_lock_label: Label
 var toast_panel: PanelContainer
 var toast_label: Label
 var toast_timer: Timer
@@ -204,7 +185,6 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 	create_camera()
-	create_deluxe_ground_sprites()
 	create_world_objects()
 	create_field_plots()
 	create_world_labels()
@@ -350,8 +330,8 @@ func focus_camera(target: Vector2, zoom_value: float) -> void:
 
 func _draw() -> void:
 	draw_ground()
-	draw_water()
 	draw_farm_clearing()
+	draw_water()
 	draw_roads()
 	draw_building_pads()
 	# Заборы теперь отдельные детализированные модели, а не линии.
@@ -360,13 +340,13 @@ func _draw() -> void:
 	draw_world_border()
 
 func draw_ground() -> void:
-	# База спокойнее и ближе к рисованным мобильным фермам.
-	draw_rect(Rect2(Vector2.ZERO, WORLD_SIZE), Color("#72b64c"))
+	# Текстура травы остаётся заметной даже после уменьшения экрана на телефоне.
+	draw_rect(Rect2(Vector2.ZERO, WORLD_SIZE), Color("#66ad45"))
 	draw_texture_rect(
 		GRASS_TEXTURE,
 		Rect2(Vector2.ZERO, WORLD_SIZE),
 		true,
-		Color(0.95, 1.0, 0.90, 0.18)
+		Color(0.96, 1.0, 0.88, 0.56)
 	)
 
 	var local_rng := RandomNumberGenerator.new()
@@ -384,16 +364,16 @@ func draw_ground() -> void:
 		draw_circle(pos, radius, patch_color)
 
 	# Кластеры травы и цветов. В игровой зоне они редкие, по краям — гуще.
-	for i in range(330):
+	for i in range(450):
 		var pos := Vector2(
 			local_rng.randf_range(52.0, WORLD_SIZE.x - 52.0),
 			local_rng.randf_range(52.0, WORLD_SIZE.y - 52.0)
 		)
-		var gameplay_area := Rect2(500, 260, 2600, 1600).has_point(pos)
-		if gameplay_area and i % 4 != 0:
+		var gameplay_area := Rect2(240, 130, 2050, 1240).has_point(pos)
+		if gameplay_area and i % 2 != 0:
 			continue
 
-		if i % 11 == 0:
+		if i % 9 == 0:
 			var flower_colors: Array[Color] = [
 				Color("#fff1a8"),
 				Color("#f8a9c2"),
@@ -419,12 +399,12 @@ func draw_ground() -> void:
 	draw_rect(Rect2(WORLD_SIZE.x - 145, 0, 145, WORLD_SIZE.y), Color(0.04, 0.23, 0.08, 0.15))
 
 func draw_farm_clearing() -> void:
-	# Светлая игровая поляна объединяет дом, амбар и грядки в одну сцену.
+	# Светлая игровая поляна объединяет весь стартовый экран в одну композицию.
 	var shadow := PackedVector2Array([
-		Vector2(500, 350), Vector2(980, 245), Vector2(1570, 275),
-		Vector2(2210, 385), Vector2(2790, 700), Vector2(2880, 1300),
-		Vector2(2530, 1730), Vector2(1960, 1880), Vector2(1210, 1815),
-		Vector2(620, 1540), Vector2(405, 940)
+		Vector2(260, 210), Vector2(690, 95), Vector2(1260, 105),
+		Vector2(1870, 155), Vector2(2185, 410), Vector2(2240, 850),
+		Vector2(2220, 1365), Vector2(1650, 1460), Vector2(930, 1430),
+		Vector2(445, 1280), Vector2(205, 810)
 	])
 	var light := PackedVector2Array()
 	for point in shadow:
@@ -434,25 +414,25 @@ func draw_farm_clearing() -> void:
 	draw_colored_polygon(light, Color(0.78, 0.94, 0.48, 0.11))
 
 	# Небольшие светлые пятна вокруг ключевых зон.
-	draw_ellipse_shape(Vector2(1110, 720), Vector2(620, 430), Color(0.85, 0.96, 0.58, 0.055))
-	draw_ellipse_shape(Vector2(1870, 1220), Vector2(610, 500), Color(0.85, 0.96, 0.58, 0.05))
+	draw_ellipse_shape(Vector2(930, 600), Vector2(610, 410), Color(0.85, 0.96, 0.58, 0.065))
+	draw_ellipse_shape(Vector2(1580, 965), Vector2(620, 430), Color(0.85, 0.96, 0.58, 0.055))
 
 func draw_water() -> void:
-	# Живой берег в нижнем левом углу, как отдельная зона отдыха.
+	# Озеро занимает нижний левый угол, как в цельной стартовой ферме.
 	var outer_shore := PackedVector2Array([
-		Vector2(0, 1540), Vector2(160, 1470), Vector2(355, 1478),
-		Vector2(535, 1565), Vector2(665, 1715), Vector2(735, 1905),
-		Vector2(720, 2140), Vector2(645, 2450), Vector2(0, 2450)
+		Vector2(0, 930), Vector2(135, 895), Vector2(300, 900),
+		Vector2(455, 965), Vector2(555, 1080), Vector2(610, 1230),
+		Vector2(565, 1500), Vector2(0, 1500)
 	])
 	var sand := PackedVector2Array([
-		Vector2(0, 1600), Vector2(165, 1530), Vector2(330, 1540),
-		Vector2(485, 1615), Vector2(590, 1750), Vector2(645, 1920),
-		Vector2(630, 2140), Vector2(550, 2450), Vector2(0, 2450)
+		Vector2(0, 975), Vector2(135, 942), Vector2(280, 948),
+		Vector2(405, 1005), Vector2(495, 1115), Vector2(535, 1250),
+		Vector2(490, 1500), Vector2(0, 1500)
 	])
 	var water := PackedVector2Array([
-		Vector2(0, 1650), Vector2(165, 1595), Vector2(305, 1605),
-		Vector2(430, 1670), Vector2(510, 1785), Vector2(550, 1940),
-		Vector2(535, 2135), Vector2(455, 2450), Vector2(0, 2450)
+		Vector2(0, 1015), Vector2(130, 990), Vector2(255, 995),
+		Vector2(360, 1040), Vector2(430, 1135), Vector2(465, 1260),
+		Vector2(420, 1500), Vector2(0, 1500)
 	])
 
 	draw_colored_polygon(outer_shore, Color(0.12, 0.25, 0.08, 0.18))
@@ -462,52 +442,53 @@ func draw_water() -> void:
 	draw_polyline(water, Color(0.83, 0.98, 0.98, 0.55), 7.0, true)
 
 	var shallow := PackedVector2Array([
-		Vector2(0, 1650), Vector2(160, 1597), Vector2(300, 1608),
-		Vector2(405, 1665), Vector2(456, 1725), Vector2(0, 1795)
+		Vector2(0, 1015), Vector2(130, 992), Vector2(250, 998),
+		Vector2(350, 1038), Vector2(405, 1098), Vector2(0, 1145)
 	])
 	draw_colored_polygon(shallow, Color(0.26, 0.78, 0.88, 0.42))
 
-	for wave_pos in [Vector2(105, 1740), Vector2(310, 1860), Vector2(145, 2070), Vector2(385, 2220)]:
+	for wave_pos in [Vector2(95, 1085), Vector2(285, 1165), Vector2(125, 1315), Vector2(330, 1410)]:
 		draw_arc(wave_pos, 34.0, 0.15, 2.9, 20, Color(1, 1, 1, 0.35), 3.5, true)
 
 	# Камни у воды.
-	for rock in [Vector2(570, 1665), Vector2(620, 1775), Vector2(585, 2050), Vector2(510, 2230)]:
+	for rock in [Vector2(485, 1045), Vector2(530, 1145), Vector2(520, 1320), Vector2(450, 1440)]:
 		draw_circle(rock + Vector2(5, 8), 17.0, Color(0.08, 0.16, 0.08, 0.16))
 		draw_circle(rock, 16.0, Color("#a69a78"))
 		draw_circle(rock + Vector2(-4, -5), 7.0, Color(0.86, 0.83, 0.69, 0.52))
 
-	# Причал.
-	draw_rect(Rect2(430, 1568, 250, 52), Color(0.08, 0.15, 0.07, 0.20))
-	draw_rect(Rect2(420, 1555, 250, 48), Color("#8f5c33"))
-	for x in range(433, 660, 36):
-		draw_rect(Rect2(x, 1548, 10, 83), Color("#654020"))
-		draw_line(Vector2(x - 3, 1572), Vector2(x + 26, 1572), Color("#d9a45e"), 3.0)
+	# Сам причал — отдельная HD-модель, здесь только лёгкая тень у берега.
+	draw_ellipse_shape(Vector2(355, 1145), Vector2(215, 58), Color(0.03, 0.17, 0.10, 0.15))
 
 func draw_roads() -> void:
-	# Дорожки образуют мягкую петлю вокруг стартовой фермы.
+	# Главная дорожка связывает дом, поля, воду и будущие постройки.
 	draw_road(PackedVector2Array([
-		Vector2(500, 1215), Vector2(720, 1140), Vector2(970, 1125),
-		Vector2(1220, 1140), Vector2(1450, 1230), Vector2(1660, 1340),
-		Vector2(1910, 1380), Vector2(2160, 1345), Vector2(2420, 1250),
-		Vector2(2750, 1185), Vector2(3070, 1205)
-	]), 52.0)
+		Vector2(350, 1015), Vector2(560, 940), Vector2(800, 915),
+		Vector2(1035, 925), Vector2(1245, 1010), Vector2(1450, 1090),
+		Vector2(1670, 1080), Vector2(1890, 1010), Vector2(2180, 930)
+	]), 56.0)
 
 	draw_road(PackedVector2Array([
-		Vector2(970, 1125), Vector2(930, 955), Vector2(970, 790), Vector2(1040, 670)
-	]), 43.0)
+		Vector2(795, 915), Vector2(790, 760), Vector2(820, 620)
+	]), 45.0)
 
 	draw_road(PackedVector2Array([
-		Vector2(1450, 1230), Vector2(1580, 1100), Vector2(1715, 1010)
-	]), 39.0)
+		Vector2(1110, 950), Vector2(1180, 820), Vector2(1215, 680)
+	]), 42.0)
 
 	draw_road(PackedVector2Array([
-		Vector2(2160, 1345), Vector2(2350, 1165), Vector2(2495, 995), Vector2(2580, 840)
-	]), 38.0)
+		Vector2(1710, 1080), Vector2(1780, 900), Vector2(1875, 700), Vector2(1940, 525)
+	]), 40.0)
 
 	# Тропинка к воде.
 	draw_road(PackedVector2Array([
-		Vector2(720, 1140), Vector2(630, 1280), Vector2(560, 1435), Vector2(515, 1555)
-	]), 34.0)
+		Vector2(560, 940), Vector2(480, 1030), Vector2(390, 1130)
+	]), 37.0)
+
+	# Ответвление к нижним полям и курятнику.
+	draw_road(PackedVector2Array([
+		Vector2(1450, 1090), Vector2(1525, 1220), Vector2(1745, 1325),
+		Vector2(1995, 1280)
+	]), 39.0)
 
 func draw_road(points: PackedVector2Array, width: float) -> void:
 	var shadow_points := PackedVector2Array()
@@ -522,29 +503,33 @@ func draw_road(points: PackedVector2Array, width: float) -> void:
 
 func draw_building_pads() -> void:
 	# Небольшие каменные основания визуально связывают здания с землёй.
-	draw_ellipse_shape(Vector2(1020, 755), Vector2(270, 110), Color(0.18, 0.25, 0.12, 0.13))
-	draw_ellipse_shape(Vector2(1395, 742), Vector2(225, 92), Color(0.18, 0.25, 0.12, 0.11))
-	draw_ellipse_shape(Vector2(746, 808), Vector2(110, 62), Color(0.18, 0.25, 0.12, 0.11))
+	draw_ellipse_shape(Vector2(805, 680), Vector2(255, 102), Color(0.18, 0.25, 0.12, 0.13))
+	draw_ellipse_shape(Vector2(1190, 706), Vector2(218, 88), Color(0.18, 0.25, 0.12, 0.11))
+	draw_ellipse_shape(Vector2(570, 735), Vector2(105, 58), Color(0.18, 0.25, 0.12, 0.11))
 
-	for pos in [Vector2(965, 830), Vector2(1015, 842), Vector2(1065, 832), Vector2(1115, 842)]:
+	for pos in [Vector2(760, 805), Vector2(810, 817), Vector2(860, 807), Vector2(910, 817)]:
 		draw_rect(Rect2(pos - Vector2(22, 10), Vector2(44, 20)), Color("#b7a178"))
 		draw_rect(Rect2(pos - Vector2(19, 8), Vector2(38, 15)), Color("#d8c79e"))
 
 
 func draw_small_decor() -> void:
-	# Скамейка у воды.
-	draw_rect(Rect2(760, 1507, 110, 17), Color("#87572f"))
-	draw_rect(Rect2(770, 1474, 90, 15), Color("#a86c38"))
-	draw_line(Vector2(782, 1488), Vector2(782, 1540), Color("#654020"), 9.0)
-	draw_line(Vector2(848, 1488), Vector2(848, 1540), Color("#654020"), 9.0)
+	# Скамейка у развилки справа.
+	draw_rect(Rect2(2030, 915, 110, 17), Color("#87572f"))
+	draw_rect(Rect2(2040, 882, 90, 15), Color("#a86c38"))
+	draw_line(Vector2(2052, 896), Vector2(2052, 948), Color("#654020"), 9.0)
+	draw_line(Vector2(2118, 896), Vector2(2118, 948), Color("#654020"), 9.0)
+
+	# Ножки приветственной таблички у входа на ферму.
+	draw_rect(Rect2(358, 800, 13, 73), Color("#704323"))
+	draw_rect(Rect2(548, 800, 13, 73), Color("#704323"))
 
 	# Несколько камней и клумб в центре.
-	for pos in [Vector2(1320, 965), Vector2(1510, 895), Vector2(2280, 1045), Vector2(2350, 1515)]:
+	for pos in [Vector2(1080, 805), Vector2(1360, 715), Vector2(1750, 695), Vector2(1860, 1140)]:
 		draw_circle(pos + Vector2(4, 6), 13.0, Color(0.07, 0.14, 0.06, 0.15))
 		draw_circle(pos, 12.0, Color("#a69a7b"))
 		draw_circle(pos + Vector2(-3, -4), 5.0, Color(0.90, 0.86, 0.72, 0.45))
 
-	for pos in [Vector2(1240, 875), Vector2(1555, 790), Vector2(2210, 920), Vector2(2370, 1425)]:
+	for pos in [Vector2(1015, 760), Vector2(1340, 805), Vector2(1700, 650), Vector2(1900, 1125)]:
 		draw_circle(pos, 10.0, Color("#4a9b3d"))
 		draw_circle(pos + Vector2(-7, -2), 5.0, Color("#f3a8c0"))
 		draw_circle(pos + Vector2(6, -5), 5.0, Color("#fff1a5"))
@@ -589,7 +574,7 @@ func draw_locked_build_spots() -> void:
 		draw_build_marker(BAKERY_SITE, "ПЕКАРНЯ", 2)
 	draw_build_marker(CHICKEN_SITE, "КУРОВНИК", 3)
 
-func draw_build_marker(center: Vector2, title: String, required_level: int) -> void:
+func draw_build_marker(center: Vector2, _title: String, _required_level: int) -> void:
 	draw_ellipse_shape(center + Vector2(6, 14), Vector2(150, 66), Color(0.05, 0.15, 0.05, 0.12))
 	draw_ellipse_shape(center, Vector2(143, 61), Color(0.86, 0.76, 0.48, 0.25))
 
@@ -615,66 +600,17 @@ func draw_world_border() -> void:
 
 
 # -----------------------------------------------------------------------------
-# DELUXE: РАЗНООБРАЗНЫЕ КУСКИ ТРАВЫ И ЗЕМЛИ
-# -----------------------------------------------------------------------------
-
-func create_deluxe_ground_sprites() -> void:
-	# Патчи размещены крупными группами: центр остаётся чистым для игры,
-	# а края, лес и будущие зоны получают разные оттенки и фактуру.
-	add_ground_patch(TERRAIN_GRASS_01, Vector2(245, 235), 355.0, 0.82)
-	add_ground_patch(TERRAIN_GRASS_02, Vector2(560, 315), 330.0, 0.72)
-	add_ground_patch(TERRAIN_GRASS_03, Vector2(895, 235), 315.0, 0.62)
-	add_ground_patch(TERRAIN_GRASS_04, Vector2(2440, 250), 350.0, 0.72)
-	add_ground_patch(TERRAIN_CLOVER, Vector2(2780, 300), 330.0, 0.80)
-	add_ground_patch(TERRAIN_FLOWERS_01, Vector2(3140, 270), 370.0, 0.84)
-	add_ground_patch(TERRAIN_TALL_GRASS, Vector2(3530, 470), 345.0, 0.76)
-
-	add_ground_patch(TERRAIN_MEADOW_01, Vector2(330, 1030), 340.0, 0.76)
-	add_ground_patch(TERRAIN_DARK_GRASS, Vector2(3600, 1000), 360.0, 0.62)
-	add_ground_patch(TERRAIN_MEADOW_02, Vector2(3020, 1480), 360.0, 0.78)
-	add_ground_patch(TERRAIN_MEADOW_03, Vector2(3330, 1790), 350.0, 0.78)
-	add_ground_patch(TERRAIN_FLOWERS_02, Vector2(2760, 2060), 370.0, 0.80)
-
-	add_ground_patch(TERRAIN_WORN_01, Vector2(660, 1880), 345.0, 0.68)
-	add_ground_patch(TERRAIN_WORN_02, Vector2(1070, 2090), 335.0, 0.65)
-	add_ground_patch(TERRAIN_WORN_03, Vector2(1510, 2130), 350.0, 0.64)
-	add_ground_patch(TERRAIN_MOSS, Vector2(2180, 2160), 345.0, 0.62)
-
-	# Мягкие переходы земли рядом с дорогами и будущими стройплощадками.
-	add_ground_patch(TERRAIN_DIRT_01, Vector2(2405, 905), 255.0, 0.58)
-	add_ground_patch(TERRAIN_DIRT_02, Vector2(2810, 1460), 250.0, 0.55)
-	add_ground_patch(TERRAIN_DIRT_03, Vector2(3050, 740), 240.0, 0.54)
-
-	# Береговые декоративные элементы поверх нарисованной воды.
-	add_ground_patch(TERRAIN_SHORE_01, Vector2(470, 1740), 310.0, 0.92)
-	add_ground_patch(TERRAIN_SHORE_02, Vector2(560, 2070), 280.0, 0.88)
-	add_ground_patch(TERRAIN_SHORE_03, Vector2(330, 2250), 300.0, 0.88)
-
-
-func add_ground_patch(texture: Texture2D, position: Vector2, target_width: float, alpha: float) -> Sprite2D:
-	var sprite := Sprite2D.new()
-	sprite.texture = texture
-	sprite.position = position
-	sprite.z_index = 1
-	sprite.modulate = Color(1.0, 1.0, 1.0, alpha)
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	var texture_size: Vector2 = texture.get_size()
-	if texture_size.x > 0.0:
-		var scale_value: float = target_width / texture_size.x
-		sprite.scale = Vector2(scale_value, scale_value)
-	add_child(sprite)
-	return sprite
-
-
-# -----------------------------------------------------------------------------
 # ОБЪЕКТЫ МИРА
 # -----------------------------------------------------------------------------
 
 func create_world_objects() -> void:
-	# Компактный стартовый фермерский двор: только базовые здания.
-	add_world_sprite(BARN_TEXTURE, Vector2(1020, 650), 455.0)
-	add_world_sprite(SILO_TEXTURE, Vector2(710, 755), 175.0)
-	add_world_sprite(HOUSE_TEXTURE, Vector2(1435, 660), 385.0)
+	# Компактный двор — главный фокус стартового экрана.
+	var barn_sprite := add_world_sprite(BARN_TEXTURE, Vector2(825, 610), 465.0)
+	add_world_touch_button(barn_sprite.get_parent() as Node2D, Vector2(410, 330), open_barn_dialog)
+	var silo_sprite := add_world_sprite(SILO_TEXTURE, Vector2(555, 705), 180.0)
+	add_world_touch_button(silo_sprite.get_parent() as Node2D, Vector2(165, 255), open_barn_dialog)
+	var house_sprite := add_world_sprite(HOUSE_TEXTURE, Vector2(1190, 650), 395.0)
+	add_world_touch_button(house_sprite.get_parent() as Node2D, Vector2(345, 300), on_house_pressed)
 
 	# Пекарня создаётся заранее, но появляется только после покупки.
 	bakery_world_root = Node2D.new()
@@ -682,54 +618,58 @@ func create_world_objects() -> void:
 	bakery_world_root.z_index = int(BAKERY_BUILD_POSITION.y)
 	add_child(bakery_world_root)
 	add_sprite_to_root(bakery_world_root, BAKERY_TEXTURE, 330.0)
+	add_world_touch_button(bakery_world_root, Vector2(300, 270), on_bakery_world_pressed)
+	bakery_site_button = create_world_site_button(BAKERY_SITE, on_bakery_site_pressed)
+	chicken_site_button = create_world_site_button(CHICKEN_SITE, on_chicken_site_pressed)
 
-	# Более живые группы деревьев: разные формы яблонь вместо повторов.
-	add_world_sprite(TREE_APPLE_TEXTURE, Vector2(480, 850), 225.0)
-	add_world_sprite(TREE_APPLE_2_TEXTURE, Vector2(2260, 535), 225.0)
-	add_world_sprite(TREE_APPLE_3_TEXTURE, Vector2(3130, 1570), 225.0)
-	add_world_sprite(TREE_APPLE_4_TEXTURE, Vector2(2860, 370), 215.0)
+	# Сад и деревья образуют естественную рамку, не отдельные пустые острова.
+	add_world_sprite(TREE_APPLE_TEXTURE, Vector2(335, 625), 215.0)
+	add_world_sprite(TREE_APPLE_2_TEXTURE, Vector2(485, 510), 205.0)
+	add_world_sprite(TREE_APPLE_3_TEXTURE, Vector2(1590, 500), 205.0)
+	add_world_sprite(TREE_APPLE_4_TEXTURE, Vector2(2140, 315), 195.0)
 
 	var round_trees: Array[Vector2] = [
-		Vector2(250, 250), Vector2(420, 445), Vector2(275, 760),
-		Vector2(315, 1125), Vector2(830, 1930), Vector2(1110, 2110),
-		Vector2(1490, 2075), Vector2(2260, 2030), Vector2(3220, 1920),
-		Vector2(3470, 1460), Vector2(3490, 820), Vector2(3350, 390)
+		Vector2(185, 235), Vector2(390, 270), Vector2(655, 205),
+		Vector2(1430, 235), Vector2(1760, 210), Vector2(2140, 675),
+		Vector2(2160, 1010), Vector2(2140, 1390), Vector2(1750, 1410),
+		Vector2(1260, 1390), Vector2(760, 1395), Vector2(565, 1250)
 	]
 	for pos in round_trees:
-		add_world_sprite(TREE_ROUND_TEXTURE, pos, 210.0)
+		add_world_sprite(TREE_ROUND_TEXTURE, pos, 190.0)
 
 	var pine_positions: Array[Vector2] = [
-		Vector2(100, 515), Vector2(145, 1010), Vector2(525, 2200),
-		Vector2(1930, 2220), Vector2(2910, 2160), Vector2(3740, 1050),
-		Vector2(3650, 340), Vector2(2700, 210)
+		Vector2(80, 470), Vector2(175, 805), Vector2(520, 185),
+		Vector2(1035, 165), Vector2(1545, 175), Vector2(2030, 210),
+		Vector2(2180, 535), Vector2(2160, 1320), Vector2(1030, 1435)
 	]
 	for pos in pine_positions:
-		add_world_sprite(TREE_PINE_TEXTURE, pos, 170.0)
+		add_world_sprite(TREE_PINE_TEXTURE, pos, 155.0)
 
 	# Детализированные декорации и заборы из нового набора.
-	add_world_sprite(ROCK_FENCE_TEXTURE, Vector2(525, 1400), 275.0)
-	add_world_sprite(ROCK_FENCE_TEXTURE, Vector2(2360, 760), 250.0)
-	add_world_sprite(ROCK_FENCE_TEXTURE, Vector2(3000, 1840), 275.0)
+	add_world_sprite(ROCK_FENCE_TEXTURE, Vector2(520, 1005), 245.0)
+	add_world_sprite(ROCK_FENCE_TEXTURE, Vector2(1790, 330), 235.0)
+	add_world_sprite(ROCK_FENCE_TEXTURE, Vector2(2220, 1135), 250.0)
 
 	# Белая ограда обрамляет поля, но не закрывает проходы.
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1535, 855), 225.0)
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1780, 855), 225.0)
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(2025, 855), 225.0)
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(2270, 855), 225.0)
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1535, 1585), 225.0)
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1780, 1585), 225.0)
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(2025, 1585), 225.0)
-	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(2270, 1585), 225.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1450, 705), 205.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1670, 700), 205.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(510, 845), 205.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(735, 850), 205.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1230, 835), 205.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1415, 820), 190.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1460, 1305), 205.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1680, 1320), 205.0)
+	add_world_sprite(FENCE_WHITE_TEXTURE, Vector2(1900, 1325), 205.0)
 
 	# Тёплый деревянный забор вокруг стартовых построек.
-	add_world_sprite(FENCE_WOOD_TEXTURE, Vector2(865, 425), 235.0)
-	add_world_sprite(FENCE_WOOD_TEXTURE, Vector2(1115, 425), 235.0)
-	add_world_sprite(FENCE_WOOD_TEXTURE, Vector2(1365, 430), 235.0)
-	add_world_sprite(GATE_TEXTURE, Vector2(2250, 1545), 205.0)
+	add_world_sprite(FENCE_WOOD_TEXTURE, Vector2(690, 370), 225.0)
+	add_world_sprite(FENCE_WOOD_TEXTURE, Vector2(930, 355), 225.0)
+	add_world_sprite(FENCE_WOOD_TEXTURE, Vector2(1170, 370), 225.0)
+	add_world_sprite(GATE_TEXTURE, Vector2(1900, 1300), 190.0)
 
-	add_world_sprite(MAILBOX_TEXTURE, Vector2(1490, 1115), 92.0)
-	add_world_sprite(DOCK_TEXTURE, Vector2(445, 1660), 315.0)
-	add_world_sprite(POND_TEXTURE, Vector2(3260, 1760), 355.0)
+	add_world_sprite(MAILBOX_TEXTURE, Vector2(1280, 915), 88.0)
+	add_world_sprite(DOCK_TEXTURE, Vector2(315, 1155), 300.0)
+	add_world_sprite(POND_TEXTURE, Vector2(2150, 760), 320.0)
 
 
 func add_world_sprite(texture: Texture2D, position: Vector2, target_width: float) -> Sprite2D:
@@ -761,6 +701,56 @@ func add_world_sprite(texture: Texture2D, position: Vector2, target_width: float
 	return sprite
 
 
+func add_world_touch_button(root: Node2D, touch_size: Vector2, callback: Callable) -> void:
+	var button := Button.new()
+	button.position = -touch_size * 0.5
+	button.size = touch_size
+	button.flat = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.pressed.connect(callback)
+	root.add_child(button)
+
+
+func create_world_site_button(position: Vector2, callback: Callable) -> Button:
+	var root := Node2D.new()
+	root.position = position
+	root.z_index = int(position.y)
+	add_child(root)
+
+	var button := Button.new()
+	button.position = Vector2(-150, -82)
+	button.size = Vector2(300, 180)
+	button.flat = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.pressed.connect(callback)
+	root.add_child(button)
+	return button
+
+
+func on_house_pressed() -> void:
+	show_toast("Дом фермера — здесь скоро появятся жители")
+
+
+func on_bakery_world_pressed() -> void:
+	if bakery_built:
+		open_bakery_dialog()
+	else:
+		open_build_dialog()
+		show_toast("Пекарня откроется на 2 уровне")
+
+
+func on_bakery_site_pressed() -> void:
+	open_build_dialog()
+	if level < 2:
+		show_toast("Пекарня откроется на 2 уровне")
+
+
+func on_chicken_site_pressed() -> void:
+	show_toast("Курятник откроется на 3 уровне")
+
+
 # -----------------------------------------------------------------------------
 # ГРЯДКИ И УРОЖАЙ
 # -----------------------------------------------------------------------------
@@ -790,10 +780,10 @@ func add_sprite_to_root(root: Node2D, texture: Texture2D, target_width: float) -
 
 func create_field_plots() -> void:
 	var positions: Array[Vector2] = [
-		Vector2(1715, 1060),
-		Vector2(2070, 1025),
-		Vector2(1685, 1365),
-		Vector2(2045, 1360)
+		Vector2(1515, 875),
+		Vector2(1815, 860),
+		Vector2(1510, 1130),
+		Vector2(1810, 1125)
 	]
 
 	for index in range(positions.size()):
@@ -812,19 +802,19 @@ func create_field_plot(index: int, position: Vector2) -> void:
 	shadow.modulate = Color(0.03, 0.10, 0.03, 0.22)
 	shadow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	root.add_child(shadow)
-	set_sprite_width(shadow, FIELD_EMPTY_TEXTURE, 326.0)
+	set_sprite_width(shadow, FIELD_EMPTY_TEXTURE, 296.0)
 
 	var sprite := Sprite2D.new()
 	sprite.name = "Visual"
 	sprite.texture = FIELD_EMPTY_TEXTURE
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	root.add_child(sprite)
-	set_sprite_width(sprite, FIELD_EMPTY_TEXTURE, 320.0)
+	set_sprite_width(sprite, FIELD_EMPTY_TEXTURE, 290.0)
 
 	var button := Button.new()
 	button.name = "TouchArea"
-	button.position = Vector2(-176, -105)
-	button.size = Vector2(352, 210)
+	button.position = Vector2(-158, -94)
+	button.size = Vector2(316, 188)
 	button.flat = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -849,8 +839,8 @@ func create_field_plot(index: int, position: Vector2) -> void:
 		"sprite": sprite,
 		"shadow": shadow,
 		"status": status,
-		"state": "empty",
-		"crop": "",
+		"state": "ready" if index == 0 else "empty",
+		"crop": "wheat" if index == 0 else "",
 		"start_time": 0.0,
 		"end_time": 0.0
 	})
@@ -1040,8 +1030,8 @@ func update_field(index: int) -> void:
 	var state: String = str(field.get("state", "empty"))
 
 	if state == "empty":
-		set_sprite_width(sprite, FIELD_EMPTY_TEXTURE, 320.0)
-		set_sprite_width(shadow, FIELD_EMPTY_TEXTURE, 326.0)
+		set_sprite_width(sprite, FIELD_EMPTY_TEXTURE, 290.0)
+		set_sprite_width(shadow, FIELD_EMPTY_TEXTURE, 296.0)
 		sprite.modulate = Color.WHITE
 		sprite.position = Vector2.ZERO
 		shadow.position = Vector2(10, 16)
@@ -1060,7 +1050,7 @@ func update_field(index: int) -> void:
 		var end_time := float(field.get("end_time", now + 1.0))
 		var duration := maxf(1.0, end_time - start_time)
 		var progress := clampf((now - start_time) / duration, 0.0, 1.0)
-		var width := lerpf(245.0, 322.0, progress)
+		var width := lerpf(220.0, 292.0, progress)
 		set_sprite_width(sprite, texture, width)
 		set_sprite_width(shadow, texture, width + 6.0)
 		sprite.modulate = Color(1.0, 1.0, 1.0, lerpf(0.76, 1.0, progress))
@@ -1071,8 +1061,8 @@ func update_field(index: int) -> void:
 		status.add_theme_stylebox_override("normal", make_style(Color("#b97c34"), Color("#85551f"), 17, 3, true))
 		status.visible = true
 	else:
-		set_sprite_width(sprite, texture, 332.0)
-		set_sprite_width(shadow, texture, 338.0)
+		set_sprite_width(sprite, texture, 300.0)
+		set_sprite_width(shadow, texture, 306.0)
 		sprite.modulate = Color.WHITE
 		sprite.position.y = -4.0
 		shadow.position = Vector2(10, 14)
@@ -1086,10 +1076,11 @@ func update_field(index: int) -> void:
 # -----------------------------------------------------------------------------
 
 func create_world_labels() -> void:
-	create_world_sign("GREEN TOWN FARM", Vector2(785, 292), Vector2(430, 58), Color("#fff0b8"), 20)
-	create_world_sign("ПОЛЯ", Vector2(1745, 805), Vector2(225, 46), Color("#e8f5b4"), 18)
-	bakery_site_label = create_world_sign("ПЕКАРНЯ\nУРОВЕНЬ 2", Vector2(2508, 712), Vector2(224, 74), Color("#fff1c8"), 16)
-	chicken_site_label = create_world_sign("КУРОВНИК\nУРОВЕНЬ 3", Vector2(2698, 1390), Vector2(224, 74), Color("#fff1c8"), 16)
+	create_world_sign("ДОБРО ПОЖАЛОВАТЬ!", Vector2(330, 760), Vector2(260, 54), Color("#fff0b8"), 17)
+	bakery_site_label = create_world_sign("ПЕКАРНЯ\nУРОВЕНЬ 2", BAKERY_SITE + Vector2(-112, -93), Vector2(224, 74), Color("#fff1c8"), 16)
+	chicken_site_label = create_world_sign("КУРОВНИК\nУРОВЕНЬ 3", CHICKEN_SITE + Vector2(-112, -93), Vector2(224, 74), Color("#fff1c8"), 16)
+	bakery_lock_label = create_world_lock(BAKERY_SITE + Vector2(-45, 2))
+	chicken_lock_label = create_world_lock(CHICKEN_SITE + Vector2(-45, 2))
 
 
 func create_world_sign(text: String, position: Vector2, size: Vector2, color: Color, font_size: int) -> Label:
@@ -1104,6 +1095,24 @@ func create_world_sign(text: String, position: Vector2, size: Vector2, color: Co
 	label.add_theme_color_override("font_color", Color("#69472f"))
 	label.add_theme_stylebox_override("normal", make_style(color, Color("#a97b45"), 17, 3, true))
 	label.z_index = int(position.y)
+	add_child(label)
+	return label
+
+
+func create_world_lock(position: Vector2) -> Label:
+	var label := Label.new()
+	label.text = "🔒"
+	label.position = position
+	label.size = Vector2(90, 90)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", 48)
+	label.add_theme_color_override("font_color", Color("#80552d"))
+	label.add_theme_color_override("font_shadow_color", Color(0.15, 0.08, 0.02, 0.45))
+	label.add_theme_constant_override("shadow_offset_x", 3)
+	label.add_theme_constant_override("shadow_offset_y", 4)
+	label.z_index = int(position.y + 80.0)
 	add_child(label)
 	return label
 
@@ -1148,11 +1157,26 @@ func create_top_hud(root: Control) -> void:
 	top.add_child(margin)
 
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
+	row.add_theme_constant_override("separation", 10)
 	margin.add_child(row)
 
+	var badge := PanelContainer.new()
+	badge.custom_minimum_size = Vector2(58, 58)
+	badge.add_theme_stylebox_override("panel", make_style(Color("#f4c93e"), Color("#8b6424"), 23, 3, true))
+	row.add_child(badge)
+
+	level_badge_label = Label.new()
+	level_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	level_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	level_badge_label.add_theme_font_size_override("font_size", 20)
+	level_badge_label.add_theme_color_override("font_color", Color.WHITE)
+	level_badge_label.add_theme_color_override("font_shadow_color", Color(0.35, 0.20, 0.04, 0.75))
+	level_badge_label.add_theme_constant_override("shadow_offset_x", 2)
+	level_badge_label.add_theme_constant_override("shadow_offset_y", 2)
+	badge.add_child(level_badge_label)
+
 	var level_box := VBoxContainer.new()
-	level_box.custom_minimum_size = Vector2(255, 0)
+	level_box.custom_minimum_size = Vector2(205, 0)
 	row.add_child(level_box)
 
 	var level_row := HBoxContainer.new()
@@ -1173,14 +1197,14 @@ func create_top_hud(root: Control) -> void:
 	level_row.add_child(xp_label)
 
 	xp_bar = ProgressBar.new()
-	xp_bar.custom_minimum_size = Vector2(255, 15)
+	xp_bar.custom_minimum_size = Vector2(205, 15)
 	xp_bar.show_percentage = false
 	xp_bar.add_theme_stylebox_override("background", make_style(Color("#365b34"), Color.TRANSPARENT, 8, 0))
 	xp_bar.add_theme_stylebox_override("fill", make_style(Color("#8ade4d"), Color.TRANSPARENT, 8, 0))
 	level_box.add_child(xp_bar)
 
 	var title := Label.new()
-	title.text = "GREEN TOWN"
+	title.text = "❧  GREEN TOWN  ❧"
 	title.add_theme_font_size_override("font_size", 27)
 	title.add_theme_color_override("font_color", Color.WHITE)
 	row.add_child(title)
@@ -1205,7 +1229,7 @@ func create_top_hud(root: Control) -> void:
 
 func make_resource_panel(title_text: String, dot_color: Color) -> PanelContainer:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(176, 52)
+	panel.custom_minimum_size = Vector2(160, 52)
 	panel.add_theme_stylebox_override("panel", make_style(Color("#49381f"), Color("#d5b35d"), 18, 3, true))
 
 	var margin := MarginContainer.new()
@@ -1461,6 +1485,10 @@ func create_seed_panel(root: Control) -> void:
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(220, 91)
 		button.focus_mode = Control.FOCUS_NONE
+		button.icon = crop["texture"]
+		button.expand_icon = true
+		button.icon_max_width = 82
+		button.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.add_theme_font_size_override("font_size", 16)
 		button.add_theme_color_override("font_color", Color("#4d3525"))
 		button.add_theme_stylebox_override("normal", make_style(card_color.lightened(0.19), card_color.darkened(0.25), 17, 4, true))
@@ -1924,6 +1952,10 @@ func update_building_visuals() -> void:
 		bakery_world_root.visible = bakery_built
 	if bakery_site_label != null:
 		bakery_site_label.visible = not bakery_built
+	if bakery_lock_label != null:
+		bakery_lock_label.visible = not bakery_built
+	if bakery_site_button != null:
+		bakery_site_button.visible = not bakery_built
 	queue_redraw()
 	update_build_dialog_state()
 
@@ -2380,6 +2412,7 @@ func update_hud() -> void:
 
 	coins_label.text = str(coins)
 	gems_label.text = str(gems)
+	level_badge_label.text = "★ %d" % level
 	level_label.text = "УРОВЕНЬ %d" % level
 	var required_xp := xp_needed_for_level(level)
 	xp_label.text = "%d/%d" % [xp, required_xp]
